@@ -1,6 +1,7 @@
 import { DashboardLayout } from "@/components/templates/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Package } from "lucide-react";
+import { ImageUpload } from "@/components/molecules/ImageUpload";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/atoms/Badge";
@@ -39,6 +40,9 @@ export default function Products() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [priceSort, setPriceSort] = useState("default");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -47,9 +51,10 @@ export default function Products() {
     category: "",
     size: "",
     color: "",
+    image_url: "",
   });
 
-  const { data: products = [], isLoading } = useQuery({
+  const { data: allProducts = [], isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -61,6 +66,32 @@ export default function Products() {
       return data || [];
     },
   });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name", { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Aplicar filtros
+  const products = allProducts
+    .filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = !categoryFilter || product.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (priceSort === "asc") return a.price - b.price;
+      if (priceSort === "desc") return b.price - a.price;
+      return 0;
+    });
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -117,6 +148,7 @@ export default function Products() {
       category: "",
       size: "",
       color: "",
+      image_url: "",
     });
     setEditingProduct(null);
   };
@@ -152,6 +184,7 @@ export default function Products() {
       category: product.category || "",
       size: product.size || "",
       color: product.color || "",
+      image_url: product.image_url || "",
     });
     setOpen(true);
   };
@@ -159,29 +192,38 @@ export default function Products() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold text-foreground">Produtos</h2>
-            <p className="text-muted-foreground">Gerencie seu catálogo de produtos</p>
-          </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-foreground">Produtos</h2>
+              <p className="text-muted-foreground">Gerencie seu catálogo de produtos</p>
+            </div>
 
-          <Dialog open={open} onOpenChange={(isOpen) => {
-            setOpen(isOpen);
-            if (!isOpen) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Novo Produto
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
+            <Dialog open={open} onOpenChange={(isOpen) => {
+              setOpen(isOpen);
+              if (!isOpen) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Novo Produto
+                </Button>
+              </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingProduct ? "Editar Produto" : "Novo Produto"}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label>Imagem</Label>
+                  <ImageUpload
+                    value={formData.image_url}
+                    onChange={(url) => setFormData({ ...formData, image_url: url })}
+                    onRemove={() => setFormData({ ...formData, image_url: "" })}
+                  />
+                </div>
                 <div>
                   <Label htmlFor="name">Nome *</Label>
                   <Input
@@ -224,11 +266,19 @@ export default function Products() {
                 </div>
                 <div>
                   <Label htmlFor="category">Categoria</Label>
-                  <Input
+                  <select
                     id="category"
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  />
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="">Selecione uma categoria</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -254,12 +304,47 @@ export default function Products() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar produtos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">Todas Categorias</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={priceSort}
+              onChange={(e) => setPriceSort(e.target.value)}
+              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="default">Ordenar por</option>
+              <option value="asc">Menor Preço</option>
+              <option value="desc">Maior Preço</option>
+            </select>
+          </div>
         </div>
 
         <div className="bg-card rounded-lg border border-border">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Imagem</TableHead>
                 <TableHead>Nome</TableHead>
                 <TableHead>Categoria</TableHead>
                 <TableHead>Preço</TableHead>
@@ -272,19 +357,32 @@ export default function Products() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     Carregando...
                   </TableCell>
                 </TableRow>
               ) : products.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    Nenhum produto cadastrado
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    {searchTerm || categoryFilter ? "Nenhum produto encontrado" : "Nenhum produto cadastrado"}
                   </TableCell>
                 </TableRow>
               ) : (
                 products.map((product) => (
                   <TableRow key={product.id}>
+                    <TableCell>
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                          <Package className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>{product.category || "-"}</TableCell>
                     <TableCell>R$ {product.price.toFixed(2)}</TableCell>

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, Package, LogOut, Menu, ShoppingCart, BarChart3, FolderKanban } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -19,6 +19,9 @@ import { toast } from "sonner";
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Produtos", url: "/products", icon: Package },
+  { title: "Categorias", url: "/categories", icon: FolderKanban },
+  { title: "Pedidos", url: "/orders", icon: ShoppingCart },
+  { title: "Relatórios", url: "/reports", icon: BarChart3 },
 ];
 
 export function AppSidebar() {
