@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/templates/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -34,10 +34,7 @@ export default function Categories() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-  });
+  const [formData, setFormData] = useState({ name: "", description: "" });
 
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ["categories"],
@@ -119,22 +116,6 @@ export default function Categories() {
     setEditingCategory(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const validation = categorySchema.safeParse(formData);
-
-    if (!validation.success) {
-      toast.error(validation.error.errors[0].message);
-      return;
-    }
-
-    if (editingCategory) {
-      updateMutation.mutate({ id: editingCategory.id, data: validation.data });
-    } else {
-      createMutation.mutate(validation.data);
-    }
-  };
 
   const handleEdit = (category: any) => {
     setEditingCategory(category);
@@ -149,6 +130,57 @@ export default function Categories() {
     return products.filter((p) => p.category === categoryName).length;
   };
 
+  let tableRows;
+  if (isLoading) {
+    tableRows = (
+      <TableRow>
+        <TableCell colSpan={4} className="text-center py-8">
+          Carregando...
+        </TableCell>
+      </TableRow>
+    );
+  } else if (categories.length === 0) {
+    tableRows = (
+      <TableRow>
+        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+          Nenhuma categoria cadastrada
+        </TableCell>
+      </TableRow>
+    );
+  } else {
+    tableRows = categories.map((category) => (
+      <TableRow key={category.id}>
+        <TableCell className="font-medium">{category.name}</TableCell>
+        <TableCell className="text-muted-foreground">
+          {category.description || "-"}
+        </TableCell>
+        <TableCell>
+          <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
+            {getProductCount(category.name)} produtos
+          </span>
+        </TableCell>
+        <TableCell className="text-right">
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleEdit(category)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => deleteMutation.mutate(category.id)}
+            >
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
+        </TableCell>
+      </TableRow>
+    ));
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -157,50 +189,8 @@ export default function Categories() {
             <h2 className="text-3xl font-bold text-foreground">Categorias</h2>
             <p className="text-muted-foreground">Organize seus produtos por categorias</p>
           </div>
-
-          <Dialog open={open} onOpenChange={(isOpen) => {
-            setOpen(isOpen);
-            if (!isOpen) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Nova Categoria
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  {editingCategory ? "Editar Categoria" : "Nova Categoria"}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Nome *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Descrição</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-                <Button type="submit" className="w-full">
-                  {editingCategory ? "Atualizar" : "Criar"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          {/* ...existing code... */}
         </div>
-
         <div className="bg-card rounded-lg border border-border">
           <Table>
             <TableHeader>
@@ -212,51 +202,7 @@ export default function Categories() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
-                    Carregando...
-                  </TableCell>
-                </TableRow>
-              ) : categories.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    Nenhuma categoria cadastrada
-                  </TableCell>
-                </TableRow>
-              ) : (
-                categories.map((category) => (
-                  <TableRow key={category.id}>
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {category.description || "-"}
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
-                        {getProductCount(category.name)} produtos
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(category)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => deleteMutation.mutate(category.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+              {tableRows}
             </TableBody>
           </Table>
         </div>
