@@ -246,11 +246,20 @@ export default function Products() {
                     <Label htmlFor="price">Preço *</Label>
                     <Input
                       id="price"
-                      type="number"
-                      step="0.01"
+                      type="text"
+                      inputMode="decimal"
                       value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/[^\d]/g, "");
+                        if (value) {
+                          value = (parseInt(value, 10) / 100).toFixed(2);
+                        } else {
+                          value = "";
+                        }
+                        setFormData({ ...formData, price: value });
+                      }}
                       required
+                      placeholder="R$ 0,00"
                     />
                   </div>
                   <div>
@@ -273,21 +282,36 @@ export default function Products() {
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
                     <option value="">Selecione uma categoria</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.name}>
-                        {cat.name}
-                      </option>
-                    ))}
+                    <option value="Casaco">Casaco</option>
+                    <option value="Camiseta">Camiseta</option>
+                    <option value="Vestido">Vestido</option>
+                    <option value="Calça">Calça</option>
+                    <option value="Saia">Saia</option>
+                    <option value="Shorts">Shorts</option>
+                    <option value="Blusa">Blusa</option>
+                    <option value="Jaqueta">Jaqueta</option>
+                    <option value="Suéter">Suéter</option>
                   </select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="size">Tamanho</Label>
-                    <Input
+                    <select
                       id="size"
                       value={formData.size}
                       onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                    />
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      <option value="">Selecione o tamanho</option>
+                      <option value="PP">PP</option>
+                      <option value="P">P</option>
+                      <option value="M">M</option>
+                      <option value="G">G</option>
+                      <option value="GG">GG</option>
+                      <option value="XG">XG</option>
+                      <option value="XXG">XXG</option>
+                      <option value="Único">Único</option>
+                    </select>
                   </div>
                   <div>
                     <Label htmlFor="color">Cor</Label>
