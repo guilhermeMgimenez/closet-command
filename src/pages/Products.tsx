@@ -158,8 +158,8 @@ export default function Products() {
 
     const validation = productSchema.safeParse({
       ...formData,
-      price: parseFloat(formData.price),
-      stock: parseInt(formData.stock),
+      price: Number.parseFloat(formData.price),
+      stock: Number.parseInt(formData.stock),
     });
 
     if (!validation.success) {
@@ -252,7 +252,7 @@ export default function Products() {
                       onChange={(e) => {
                         let value = e.target.value.replace(/[^\d]/g, "");
                         if (value) {
-                          value = (parseInt(value, 10) / 100).toFixed(2);
+                          value = (Number.parseInt(value, 10) / 100).toFixed(2);
                         } else {
                           value = "";
                         }

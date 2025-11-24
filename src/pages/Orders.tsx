@@ -272,7 +272,7 @@ export default function Orders() {
                   <Label>Produtos *</Label>
                   <div className="space-y-2">
                     {formData.items.map((item, index) => (
-                      <div key={index} className="flex gap-2">
+                      <div key={item.product_id} className="flex gap-2">
                         <Select
                           value={item.product_id}
                           onValueChange={(value) => {
@@ -298,7 +298,7 @@ export default function Orders() {
                           value={item.quantity}
                           onChange={(e) => {
                             const newItems = [...formData.items];
-                            newItems[index].quantity = parseInt(e.target.value);
+                            newItems[index].quantity = Number.parseInt(e.target.value);
                             setFormData({ ...formData, items: newItems });
                           }}
                           className="w-24"
@@ -339,21 +339,27 @@ export default function Orders() {
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
-                    Carregando...
-                  </TableCell>
-                </TableRow>
-              ) : orders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    Nenhum pedido cadastrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                orders.map((order) => (
+            {/* Refatoração: extrai o ternário para uma variável */}
+            {(() => {
+              let tableRows;
+              if (isLoading) {
+                tableRows = (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8">
+                      Carregando...
+                    </TableCell>
+                  </TableRow>
+                );
+              } else if (orders.length === 0) {
+                tableRows = (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Nenhum pedido cadastrado
+                    </TableCell>
+                  </TableRow>
+                );
+              } else {
+                tableRows = orders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">{order.customer_name}</TableCell>
                     <TableCell>{order.customer_email}</TableCell>
@@ -390,9 +396,10 @@ export default function Orders() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
+                ));
+              }
+              return <TableBody>{tableRows}</TableBody>;
+            })()}
           </Table>
         </div>
 
