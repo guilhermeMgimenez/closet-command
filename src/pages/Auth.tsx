@@ -10,11 +10,6 @@ import { z } from "zod";
 import { Store } from "lucide-react";
 import { Loading } from "@/components/atoms/Loading";
 
-const authSchema = z.object({
-  email: z.string().trim().email({ message: "Email inválido" }).max(255),
-  password: z.string().min(6, { message: "Senha deve ter no mínimo 6 caracteres" }).max(100),
-});
-
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -116,50 +111,50 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
-      <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+    <div className={styles.container}>
+      <div className={styles.radialGradient} />
+      <div className={styles.floatBlob1} />
+      <div className={styles.floatBlob2} style={{ animationDelay: '2s' }} />
       
-      <Card className="relative w-full max-w-md p-10 space-y-8 glass-effect shadow-elevated">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-2xl blur-lg opacity-50" />
-            <div className="relative p-4 bg-gradient-to-br from-primary to-accent rounded-2xl shadow-lg">
-              <Store className="h-10 w-10 text-primary-foreground" />
+      <Card className={styles.card}>
+        <div className={styles.header}>
+          <div className={styles.iconWrapper}>
+            <div className={styles.iconBg} />
+            <div className={styles.iconBox}>
+              <Store className={styles.icon} />
             </div>
           </div>
-          <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold text-gradient">Admin Store</h1>
-            <p className="text-muted-foreground">
+          <div className={styles.titleBox}>
+            <h1 className={styles.title}>Admin Store</h1>
+            <p className={styles.subtitle}>
               {isLogin ? "Entre com sua conta" : "Crie sua conta"}
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleAuth} className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
+        <form onSubmit={handleAuth} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <Label htmlFor="email" className={styles.label}>Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="seu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-12 bg-background/50"
+              className={styles.input}
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-semibold">Senha</Label>
+          <div className={styles.inputGroup}>
+            <Label htmlFor="password" className={styles.label}>Senha</Label>
             <Input
               id="password"
               type="password"
               placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-12 bg-background/50"
+              className={styles.input}
               required
             />
           </div>
@@ -176,7 +171,7 @@ export default function Auth() {
             return (
               <Button 
                 type="submit" 
-                className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all" 
+                className={styles.submitButton} 
                 disabled={loading}
               >
                 {buttonText}
@@ -185,11 +180,11 @@ export default function Auth() {
           })()}
         </form>
 
-        <div className="text-center">
+        <div className={styles.toggleBox}>
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-primary hover:text-primary-glow font-medium transition-colors"
+            className={styles.toggleButton}
           >
             {isLogin ? "Não tem conta? Cadastre-se" : "Já tem conta? Entre"}
           </button>
@@ -198,3 +193,32 @@ export default function Auth() {
     </div>
   );
 }
+
+// Styles
+const styles = {
+  container: "min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4 relative overflow-hidden",
+  radialGradient: "absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]",
+  floatBlob1: "absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float",
+  floatBlob2: "absolute bottom-20 right-20 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float",
+  card: "relative w-full max-w-md p-10 space-y-8 glass-effect shadow-elevated",
+  header: "flex flex-col items-center space-y-4",
+  iconWrapper: "relative",
+  iconBg: "absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-2xl blur-lg opacity-50",
+  iconBox: "relative p-4 bg-gradient-to-br from-primary to-accent rounded-2xl shadow-lg",
+  icon: "h-10 w-10 text-primary-foreground",
+  titleBox: "text-center space-y-2",
+  title: "text-4xl font-bold text-gradient",
+  subtitle: "text-muted-foreground",
+  form: "space-y-5",
+  inputGroup: "space-y-2",
+  label: "text-sm font-semibold",
+  input: "h-12 bg-background/50",
+  submitButton: "w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all",
+  toggleBox: "text-center",
+  toggleButton: "text-sm text-primary hover:text-primary-glow font-medium transition-colors",
+};
+
+const authSchema = z.object({
+  email: z.string().trim().email({ message: "Email inválido" }).max(255),
+  password: z.string().min(6, { message: "Senha deve ter no mínimo 6 caracteres" }).max(100),
+});

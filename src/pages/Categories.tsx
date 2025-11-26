@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/templates/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -12,23 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
 import { z } from "zod";
-
-const categorySchema = z.object({
-  name: z.string().trim().min(1, "Nome é obrigatório").max(100),
-  description: z.string().trim().max(500).optional(),
-});
 
 export default function Categories() {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<any>(null);
-  const [formData, setFormData] = useState({ name: "", description: "" });
 
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ["categories"],
@@ -63,8 +50,6 @@ export default function Categories() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Categoria criada com sucesso!");
-      setOpen(false);
-      resetForm();
     },
     onError: (error: any) => {
       if (error.message?.includes("duplicate key")) {
@@ -83,8 +68,6 @@ export default function Categories() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Categoria atualizada com sucesso!");
-      setOpen(false);
-      resetForm();
     },
     onError: () => {
       toast.error("Erro ao atualizar categoria");
@@ -104,21 +87,6 @@ export default function Categories() {
       toast.error("Erro ao remover categoria");
     },
   });
-
-  const resetForm = () => {
-    setFormData({ name: "", description: "" });
-    setEditingCategory(null);
-  };
-
-
-  const handleEdit = (category: any) => {
-    setEditingCategory(category);
-    setFormData({
-      name: category.name,
-      description: category.description || "",
-    });
-    setOpen(true);
-  };
 
   const getProductCount = (categoryName: string) => {
     return products.filter((p) => p.category === categoryName).length;
@@ -154,14 +122,7 @@ export default function Categories() {
           </span>
         </TableCell>
         <TableCell className="text-right">
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleEdit(category)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+          <div className={styles.actionButtons}>
             <Button
               variant="ghost"
               size="icon"
@@ -177,14 +138,14 @@ export default function Categories() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className={styles.container}>
+        <div className={styles.header}>
           <div>
-            <h2 className="text-3xl font-bold text-foreground">Categorias</h2>
-            <p className="text-muted-foreground">Organize seus produtos por categorias</p>
+            <h2 className={styles.title}>Categorias</h2>
+            <p className={styles.subtitle}>Organize seus produtos por categorias</p>
           </div>
         </div>
-        <div className="bg-card rounded-lg border border-border">
+        <div className={styles.tableWrapper}>
           <Table>
             <TableHeader>
               <TableRow>
@@ -203,3 +164,20 @@ export default function Categories() {
     </DashboardLayout>
   );
 }
+
+// Styles
+const styles = {
+  container: "space-y-6",
+  header: "flex items-center justify-between",
+  title: "text-3xl font-bold text-foreground",
+  subtitle: "text-muted-foreground",
+  tableWrapper: "bg-card rounded-lg border border-border",
+  badgeWrapper: "text-sm bg-primary/10 text-primary px-2 py-1 rounded",
+  actionButtons: "flex justify-end gap-2",
+};
+
+// Schemas
+const categorySchema = z.object({
+  name: z.string().trim().min(1, "Nome é obrigatório").max(100),
+  description: z.string().trim().max(500).optional(),
+});

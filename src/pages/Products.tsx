@@ -250,7 +250,7 @@ export default function Products() {
                       inputMode="decimal"
                       value={formData.price}
                       onChange={(e) => {
-                        let value = e.target.value.replace(/[^\d]/g, "");
+                        let value = e.target.value.replaceAll(/\D/g, "");
                         if (value) {
                           value = (Number.parseInt(value, 10) / 100).toFixed(2);
                         } else {
