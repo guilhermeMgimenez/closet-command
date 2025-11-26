@@ -45,6 +45,48 @@ export default function Auth() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const handleLoginError = (error: any) => {
+    if (error.message.includes("Invalid login credentials")) {
+      toast.error("Email ou senha incorretos");
+    } else {
+      toast.error(error.message);
+    }
+  };
+
+  const handleSignupError = (error: any) => {
+    if (error.message.includes("already registered")) {
+      toast.error("Este email já está cadastrado");
+    } else {
+      toast.error(error.message);
+    }
+  };
+
+  const handleLogin = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      handleLoginError(error);
+      return false;
+    }
+    toast.success("Login realizado com sucesso!");
+    return true;
+  };
+
+  const handleSignup = async (email: string, password: string) => {
+    const redirectUrl = `${globalThis.location.origin}/dashboard`;
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: redirectUrl },
+    });
+    if (error) {
+      handleSignupError(error);
+      return false;
+    }
+    toast.success("Cadastro realizado! Você já pode fazer login.");
+    setIsLogin(true);
+    return true;
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -58,40 +100,9 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: validation.data.email,
-          password: validation.data.password,
-        });
-
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast.error("Email ou senha incorretos");
-          } else {
-            toast.error(error.message);
-          }
-        } else {
-          toast.success("Login realizado com sucesso!");
-        }
+        await handleLogin(validation.data.email, validation.data.password);
       } else {
-        const redirectUrl = `${window.location.origin}/dashboard`;
-        const { error } = await supabase.auth.signUp({
-          email: validation.data.email,
-          password: validation.data.password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
-        });
-
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast.error("Este email já está cadastrado");
-          } else {
-            toast.error(error.message);
-          }
-        } else {
-          toast.success("Cadastro realizado! Você já pode fazer login.");
-          setIsLogin(true);
-        }
+        await handleSignup(validation.data.email, validation.data.password);
       }
     } catch (error) {
       toast.error("Erro ao processar requisição");
@@ -145,7 +156,7 @@ export default function Auth() {
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="h-12 bg-background/50"
@@ -153,13 +164,25 @@ export default function Auth() {
             />
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all" 
-            disabled={loading}
-          >
-            {loading ? "Carregando..." : isLogin ? "Entrar" : "Cadastrar"}
-          </Button>
+          {(() => {
+            let buttonText;
+            if (loading) {
+              buttonText = "Carregando...";
+            } else if (isLogin) {
+              buttonText = "Entrar";
+            } else {
+              buttonText = "Cadastrar";
+            }
+            return (
+              <Button 
+                type="submit" 
+                className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all" 
+                disabled={loading}
+              >
+                {buttonText}
+              </Button>
+            );
+          })()}
         </form>
 
         <div className="text-center">
