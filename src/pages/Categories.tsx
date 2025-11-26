@@ -76,7 +76,7 @@ export default function Categories() {
       if (error.message?.includes("duplicate key")) {
         toast.error("Já existe uma categoria com este nome");
       } else {
-        toast.error("Erro ao criar categoria");
+        toast.error("Erro ao criar categoria"); 
       }
     },
   });
@@ -189,7 +189,6 @@ export default function Categories() {
             <h2 className="text-3xl font-bold text-foreground">Categorias</h2>
             <p className="text-muted-foreground">Organize seus produtos por categorias</p>
           </div>
-          {/* ...existing code... */}
         </div>
         <div className="bg-card rounded-lg border border-border">
           <Table>
