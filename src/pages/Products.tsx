@@ -379,20 +379,28 @@ export default function Products() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
-                    Carregando...
-                  </TableCell>
-                </TableRow>
-              ) : products.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                    {searchTerm || categoryFilter ? "Nenhum produto encontrado" : "Nenhum produto cadastrado"}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                products.map((product) => (
+              {(() => {
+                if (isLoading) {
+                  return (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8">
+                        Carregando...
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+                
+                if (products.length === 0) {
+                  return (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                        {searchTerm || categoryFilter ? "Nenhum produto encontrado" : "Nenhum produto cadastrado"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+                
+                return products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
                       {product.image_url ? (
@@ -436,8 +444,8 @@ export default function Products() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
+                ));
+              })()}
             </TableBody>
           </Table>
         </div>
