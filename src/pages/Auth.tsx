@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Store } from "lucide-react";
+import { Loading } from "@/components/atoms/Loading";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Email inválido" }).max(255),
@@ -19,18 +20,25 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/dashboard");
+        setRedirecting(true);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1500);
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/dashboard");
+        setRedirecting(true);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1500);
       }
     });
 
@@ -91,6 +99,10 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  if (redirecting) {
+    return <Loading />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4 relative overflow-hidden">
