@@ -2,7 +2,19 @@ import { DashboardLayout } from "@/components/templates/DashboardLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import { Package, TrendingUp, ShoppingCart, AlertCircle } from "lucide-react";
 import { StatCard } from "@/components/molecules/StatCard";
 
@@ -31,7 +43,7 @@ export default function Reports() {
   const categoryData = products.reduce((acc: any[], product) => {
     const category = product.category || "Sem Categoria";
     const existing = acc.find((item) => item.name === category);
-    
+
     if (existing) {
       existing.quantidade += 1;
       existing.valor += product.price * product.stock;
@@ -42,7 +54,7 @@ export default function Reports() {
         valor: product.price * product.stock,
       });
     }
-    
+
     return acc;
   }, []);
 
@@ -67,7 +79,9 @@ export default function Reports() {
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-bold text-foreground">Relatórios</h2>
-          <p className="text-muted-foreground">Análise detalhada do seu negócio</p>
+          <p className="text-muted-foreground">
+            Análise detalhada do seu negócio
+          </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -111,7 +125,10 @@ export default function Reports() {
                   dataKey="quantidade"
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -128,7 +145,9 @@ export default function Reports() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip formatter={(value) => `R$ ${Number(value).toFixed(2)}`} />
+                <Tooltip
+                  formatter={(value) => `R$ ${Number(value).toFixed(2)}`}
+                />
                 <Legend />
                 <Bar dataKey="valor" fill="#2563eb" name="Valor Total" />
               </BarChart>
@@ -151,7 +170,11 @@ export default function Reports() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="estoque" fill="#ea580c" name="Unidades em Estoque" />
+                <Bar
+                  dataKey="estoque"
+                  fill="#ea580c"
+                  name="Unidades em Estoque"
+                />
               </BarChart>
             </ResponsiveContainer>
           </Card>

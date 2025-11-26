@@ -61,7 +61,7 @@ export default function Products() {
         .from("products")
         .select("*")
         .order("created_at", { ascending: false });
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -74,7 +74,7 @@ export default function Products() {
         .from("categories")
         .select("*")
         .order("name", { ascending: true });
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -83,8 +83,11 @@ export default function Products() {
   // Aplicar filtros
   const products = allProducts
     .filter((product) => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = !categoryFilter || product.category === categoryFilter;
+      const matchesSearch = product.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        !categoryFilter || product.category === categoryFilter;
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
@@ -111,7 +114,10 @@ export default function Products() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const { error } = await supabase.from("products").update(data).eq("id", id);
+      const { error } = await supabase
+        .from("products")
+        .update(data)
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -196,138 +202,164 @@ export default function Products() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold text-foreground">Produtos</h2>
-              <p className="text-muted-foreground">Gerencie seu catálogo de produtos</p>
+              <p className="text-muted-foreground">
+                Gerencie seu catálogo de produtos
+              </p>
             </div>
 
-            <Dialog open={open} onOpenChange={(isOpen) => {
-              setOpen(isOpen);
-              if (!isOpen) resetForm();
-            }}>
+            <Dialog
+              open={open}
+              onOpenChange={(isOpen) => {
+                setOpen(isOpen);
+                if (!isOpen) resetForm();
+              }}
+            >
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
                   Novo Produto
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingProduct ? "Editar Produto" : "Novo Produto"}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label>Imagem</Label>
-                  <ImageUpload
-                    value={formData.image_url}
-                    onChange={(url) => setFormData({ ...formData, image_url: url })}
-                    onRemove={() => setFormData({ ...formData, image_url: "" })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="name">Nome *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Descrição</Label>
-                  <Input
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingProduct ? "Editar Produto" : "Novo Produto"}
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="price">Preço *</Label>
+                    <Label>Imagem</Label>
+                    <ImageUpload
+                      value={formData.image_url}
+                      onChange={(url) =>
+                        setFormData({ ...formData, image_url: url })
+                      }
+                      onRemove={() =>
+                        setFormData({ ...formData, image_url: "" })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="name">Nome *</Label>
                     <Input
-                      id="price"
-                      type="text"
-                      inputMode="decimal"
-                      value={formData.price}
-                      onChange={(e) => {
-                        let value = e.target.value.replaceAll(/\D/g, "");
-                        if (value) {
-                          value = (Number.parseInt(value, 10) / 100).toFixed(2);
-                        } else {
-                          value = "";
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Descrição</Label>
+                    <Input
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="price">Preço *</Label>
+                      <Input
+                        id="price"
+                        type="text"
+                        inputMode="decimal"
+                        value={formData.price}
+                        onChange={(e) => {
+                          let value = e.target.value.replaceAll(/\D/g, "");
+                          if (value) {
+                            value = (Number.parseInt(value, 10) / 100).toFixed(
+                              2
+                            );
+                          } else {
+                            value = "";
+                          }
+                          setFormData({ ...formData, price: value });
+                        }}
+                        required
+                        placeholder="R$ 0,00"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="stock">Estoque *</Label>
+                      <Input
+                        id="stock"
+                        type="number"
+                        value={formData.stock}
+                        onChange={(e) =>
+                          setFormData({ ...formData, stock: e.target.value })
                         }
-                        setFormData({ ...formData, price: value });
-                      }}
-                      required
-                      placeholder="R$ 0,00"
-                    />
+                        required
+                      />
+                    </div>
                   </div>
                   <div>
-                    <Label htmlFor="stock">Estoque *</Label>
-                    <Input
-                      id="stock"
-                      type="number"
-                      value={formData.stock}
-                      onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="category">Categoria</Label>
-                  <select
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  >
-                    <option value="">Selecione uma categoria</option>
-                    <option value="Casaco">Casaco</option>
-                    <option value="Camiseta">Camiseta</option>
-                    <option value="Vestido">Vestido</option>
-                    <option value="Calça">Calça</option>
-                    <option value="Saia">Saia</option>
-                    <option value="Shorts">Shorts</option>
-                    <option value="Blusa">Blusa</option>
-                    <option value="Jaqueta">Jaqueta</option>
-                    <option value="Suéter">Suéter</option>
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="size">Tamanho</Label>
+                    <Label htmlFor="category">Categoria</Label>
                     <select
-                      id="size"
-                      value={formData.size}
-                      onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                      id="category"
+                      value={formData.category}
+                      onChange={(e) =>
+                        setFormData({ ...formData, category: e.target.value })
+                      }
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
-                      <option value="">Selecione o tamanho</option>
-                      <option value="PP">PP</option>
-                      <option value="P">P</option>
-                      <option value="M">M</option>
-                      <option value="G">G</option>
-                      <option value="GG">GG</option>
-                      <option value="XG">XG</option>
-                      <option value="XXG">XXG</option>
-                      <option value="Único">Único</option>
+                      <option value="">Selecione uma categoria</option>
+                      <option value="Casaco">Casaco</option>
+                      <option value="Camiseta">Camiseta</option>
+                      <option value="Vestido">Vestido</option>
+                      <option value="Calça">Calça</option>
+                      <option value="Saia">Saia</option>
+                      <option value="Shorts">Shorts</option>
+                      <option value="Blusa">Blusa</option>
+                      <option value="Jaqueta">Jaqueta</option>
+                      <option value="Suéter">Suéter</option>
                     </select>
                   </div>
-                  <div>
-                    <Label htmlFor="color">Cor</Label>
-                    <Input
-                      id="color"
-                      value={formData.color}
-                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="size">Tamanho</Label>
+                      <select
+                        id="size"
+                        value={formData.size}
+                        onChange={(e) =>
+                          setFormData({ ...formData, size: e.target.value })
+                        }
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      >
+                        <option value="">Selecione o tamanho</option>
+                        <option value="PP">PP</option>
+                        <option value="P">P</option>
+                        <option value="M">M</option>
+                        <option value="G">G</option>
+                        <option value="GG">GG</option>
+                        <option value="XG">XG</option>
+                        <option value="XXG">XXG</option>
+                        <option value="Único">Único</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label htmlFor="color">Cor</Label>
+                      <Input
+                        id="color"
+                        value={formData.color}
+                        onChange={(e) =>
+                          setFormData({ ...formData, color: e.target.value })
+                        }
+                      />
+                    </div>
                   </div>
-                </div>
-                <Button type="submit" className="w-full">
-                  {editingProduct ? "Atualizar" : "Criar"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <Button type="submit" className="w-full">
+                    {editingProduct ? "Atualizar" : "Criar"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="flex gap-4">
@@ -389,17 +421,22 @@ export default function Products() {
                     </TableRow>
                   );
                 }
-                
+
                 if (products.length === 0) {
                   return (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                        {searchTerm || categoryFilter ? "Nenhum produto encontrado" : "Nenhum produto cadastrado"}
+                      <TableCell
+                        colSpan={8}
+                        className="text-center py-8 text-muted-foreground"
+                      >
+                        {searchTerm || categoryFilter
+                          ? "Nenhum produto encontrado"
+                          : "Nenhum produto cadastrado"}
                       </TableCell>
                     </TableRow>
                   );
                 }
-                
+
                 return products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
@@ -415,11 +452,15 @@ export default function Products() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {product.name}
+                    </TableCell>
                     <TableCell>{product.category || "-"}</TableCell>
                     <TableCell>R$ {product.price.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Badge variant={product.stock < 10 ? "warning" : "success"}>
+                      <Badge
+                        variant={product.stock < 10 ? "warning" : "success"}
+                      >
                         {product.stock}
                       </Badge>
                     </TableCell>

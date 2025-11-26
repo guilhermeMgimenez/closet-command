@@ -37,11 +37,21 @@ const orderSchema = z.object({
   customer_name: z.string().trim().min(1, "Nome é obrigatório").max(200),
   customer_email: z.string().trim().email("Email inválido").max(255),
   customer_phone: z.string().trim().max(20).optional(),
-  status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled"]),
-  items: z.array(z.object({
-    product_id: z.string(),
-    quantity: z.number().positive(),
-  })).min(1, "Adicione pelo menos um produto"),
+  status: z.enum([
+    "pending",
+    "processing",
+    "shipped",
+    "delivered",
+    "cancelled",
+  ]),
+  items: z
+    .array(
+      z.object({
+        product_id: z.string(),
+        quantity: z.number().positive(),
+      })
+    )
+    .min(1, "Adicione pelo menos um produto"),
 });
 
 const statusLabels = {
@@ -52,7 +62,10 @@ const statusLabels = {
   cancelled: "Cancelado",
 };
 
-const statusVariants: Record<string, "default" | "warning" | "success" | "destructive"> = {
+const statusVariants: Record<
+  string,
+  "default" | "warning" | "success" | "destructive"
+> = {
   pending: "warning",
   processing: "default",
   shipped: "default",
@@ -80,7 +93,7 @@ export default function Orders() {
         .from("orders")
         .select("*")
         .order("created_at", { ascending: false });
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -89,10 +102,8 @@ export default function Orders() {
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*");
-      
+      const { data, error } = await supabase.from("products").select("*");
+
       if (error) throw error;
       return data || [];
     },
@@ -101,26 +112,28 @@ export default function Orders() {
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
       const total = data.items.reduce((sum: number, item: any) => {
-        const product = products.find(p => p.id === item.product_id);
+        const product = products.find((p) => p.id === item.product_id);
         return sum + (product?.price || 0) * item.quantity;
       }, 0);
 
       const { data: order, error: orderError } = await supabase
         .from("orders")
-        .insert([{
-          customer_name: data.customer_name,
-          customer_email: data.customer_email,
-          customer_phone: data.customer_phone,
-          status: data.status,
-          total,
-        }])
+        .insert([
+          {
+            customer_name: data.customer_name,
+            customer_email: data.customer_email,
+            customer_phone: data.customer_phone,
+            status: data.status,
+            total,
+          },
+        ])
         .select()
         .single();
 
       if (orderError) throw orderError;
 
       const orderItems = data.items.map((item: any) => {
-        const product = products.find(p => p.id === item.product_id);
+        const product = products.find((p) => p.id === item.product_id);
         return {
           order_id: order.id,
           product_id: item.product_id,
@@ -222,7 +235,9 @@ export default function Orders() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold text-foreground">Pedidos</h2>
-            <p className="text-muted-foreground">Gerencie os pedidos da sua loja</p>
+            <p className="text-muted-foreground">
+              Gerencie os pedidos da sua loja
+            </p>
           </div>
 
           <Dialog open={open} onOpenChange={setOpen}>
@@ -243,7 +258,12 @@ export default function Orders() {
                     <Input
                       id="customer_name"
                       value={formData.customer_name}
-                      onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          customer_name: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -253,7 +273,12 @@ export default function Orders() {
                       id="customer_email"
                       type="email"
                       value={formData.customer_email}
-                      onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          customer_email: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -264,7 +289,12 @@ export default function Orders() {
                   <Input
                     id="customer_phone"
                     value={formData.customer_phone}
-                    onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        customer_phone: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
@@ -298,7 +328,9 @@ export default function Orders() {
                           value={item.quantity}
                           onChange={(e) => {
                             const newItems = [...formData.items];
-                            newItems[index].quantity = Number.parseInt(e.target.value);
+                            newItems[index].quantity = Number.parseInt(
+                              e.target.value
+                            );
                             setFormData({ ...formData, items: newItems });
                           }}
                           className="w-24"
@@ -313,7 +345,12 @@ export default function Orders() {
                         </Button>
                       </div>
                     ))}
-                    <Button type="button" variant="outline" onClick={addProduct} className="w-full">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addProduct}
+                      className="w-full"
+                    >
                       + Adicionar Produto
                     </Button>
                   </div>
@@ -353,7 +390,10 @@ export default function Orders() {
               } else if (orders.length === 0) {
                 tableRows = (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-8 text-muted-foreground"
+                    >
                       Nenhum pedido cadastrado
                     </TableCell>
                   </TableRow>
@@ -361,7 +401,9 @@ export default function Orders() {
               } else {
                 tableRows = orders.map((order) => (
                   <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.customer_name}</TableCell>
+                    <TableCell className="font-medium">
+                      {order.customer_name}
+                    </TableCell>
                     <TableCell>{order.customer_email}</TableCell>
                     <TableCell>R$ {order.total.toFixed(2)}</TableCell>
                     <TableCell>
@@ -373,19 +415,27 @@ export default function Orders() {
                       >
                         <SelectTrigger className="w-32">
                           <Badge variant={statusVariants[order.status]}>
-                            {statusLabels[order.status as keyof typeof statusLabels]}
+                            {
+                              statusLabels[
+                                order.status as keyof typeof statusLabels
+                              ]
+                            }
                           </Badge>
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.entries(statusLabels).map(([value, label]) => (
-                            <SelectItem key={value} value={value}>
-                              {label}
-                            </SelectItem>
-                          ))}
+                          {Object.entries(statusLabels).map(
+                            ([value, label]) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            )
+                          )}
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>{format(new Date(order.created_at), "dd/MM/yyyy")}</TableCell>
+                    <TableCell>
+                      {format(new Date(order.created_at), "dd/MM/yyyy")}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -418,8 +468,13 @@ export default function Orders() {
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Produtos</p>
                   {selectedOrder.items?.map((item: any) => (
-                    <div key={item.id} className="flex justify-between py-2 border-b">
-                      <span>{item.products.name} x{item.quantity}</span>
+                    <div
+                      key={item.id}
+                      className="flex justify-between py-2 border-b"
+                    >
+                      <span>
+                        {item.products.name} x{item.quantity}
+                      </span>
                       <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}

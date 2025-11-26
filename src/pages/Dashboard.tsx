@@ -19,7 +19,7 @@ export default function Dashboard() {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(5);
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -27,14 +27,16 @@ export default function Dashboard() {
 
   const totalProducts = products.length;
   const lowStockProducts = products.filter((p) => p.stock < 10).length;
-  const totalValue = products.reduce((acc, p) => acc + (p.price * p.stock), 0);
+  const totalValue = products.reduce((acc, p) => acc + p.price * p.stock, 0);
 
   return (
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
         <div className="space-y-2">
           <h2 className="text-4xl font-bold text-foreground">Dashboard</h2>
-          <p className="text-muted-foreground text-lg">Visão geral da sua loja</p>
+          <p className="text-muted-foreground text-lg">
+            Visão geral da sua loja
+          </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -68,10 +70,14 @@ export default function Dashboard() {
           <div className="p-8">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-2xl font-bold text-foreground mb-1">Produtos Recentes</h3>
-                <p className="text-muted-foreground">Últimos produtos adicionados ao catálogo</p>
+                <h3 className="text-2xl font-bold text-foreground mb-1">
+                  Produtos Recentes
+                </h3>
+                <p className="text-muted-foreground">
+                  Últimos produtos adicionados ao catálogo
+                </p>
               </div>
-              <Button 
+              <Button
                 onClick={() => navigate("/products")}
                 className="shadow-lg hover:shadow-xl transition-all"
               >
@@ -102,12 +108,16 @@ export default function Dashboard() {
                         <div className="absolute inset-0 bg-primary/10 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground text-lg mb-1">{product.name}</p>
-                        <p className="text-sm text-muted-foreground">{product.category}</p>
+                        <p className="font-semibold text-foreground text-lg mb-1">
+                          {product.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {product.category}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
-                      <Badge 
+                      <Badge
                         variant={product.stock < 10 ? "warning" : "success"}
                         className="text-sm font-semibold px-3 py-1.5"
                       >

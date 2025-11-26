@@ -24,7 +24,7 @@ export default function Categories() {
         .from("categories")
         .select("*")
         .order("name", { ascending: true });
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -36,7 +36,7 @@ export default function Categories() {
       const { data, error } = await supabase
         .from("products")
         .select("category");
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -55,14 +55,17 @@ export default function Categories() {
       if (error.message?.includes("duplicate key")) {
         toast.error("Já existe uma categoria com este nome");
       } else {
-        toast.error("Erro ao criar categoria"); 
+        toast.error("Erro ao criar categoria");
       }
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const { error } = await supabase.from("categories").update(data).eq("id", id);
+      const { error } = await supabase
+        .from("categories")
+        .update(data)
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -104,7 +107,10 @@ export default function Categories() {
   } else if (categories.length === 0) {
     tableRows = (
       <TableRow>
-        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+        <TableCell
+          colSpan={4}
+          className="text-center py-8 text-muted-foreground"
+        >
           Nenhuma categoria cadastrada
         </TableCell>
       </TableRow>
@@ -142,7 +148,9 @@ export default function Categories() {
         <div className={styles.header}>
           <div>
             <h2 className={styles.title}>Categorias</h2>
-            <p className={styles.subtitle}>Organize seus produtos por categorias</p>
+            <p className={styles.subtitle}>
+              Organize seus produtos por categorias
+            </p>
           </div>
         </div>
         <div className={styles.tableWrapper}>
@@ -155,9 +163,7 @@ export default function Categories() {
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {tableRows}
-            </TableBody>
+            <TableBody>{tableRows}</TableBody>
           </Table>
         </div>
       </div>
@@ -165,7 +171,6 @@ export default function Categories() {
   );
 }
 
-// Styles
 const styles = {
   container: "space-y-6",
   header: "flex items-center justify-between",
@@ -176,7 +181,6 @@ const styles = {
   actionButtons: "flex justify-end gap-2",
 };
 
-// Schemas
 const categorySchema = z.object({
   name: z.string().trim().min(1, "Nome é obrigatório").max(100),
   description: z.string().trim().max(500).optional(),
