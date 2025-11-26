@@ -31,10 +31,10 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold text-foreground">Dashboard</h2>
-          <p className="text-muted-foreground">Visão geral da sua loja</p>
+      <div className="space-y-8 animate-fade-in">
+        <div className="space-y-2">
+          <h2 className="text-4xl font-bold text-foreground">Dashboard</h2>
+          <p className="text-muted-foreground text-lg">Visão geral da sua loja</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -63,43 +63,64 @@ export default function Dashboard() {
           />
         </div>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-foreground">Produtos Recentes</h3>
-            <Button onClick={() => navigate("/products")}>Ver Todos</Button>
-          </div>
+        <Card className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -z-10" />
+          <div className="p-8">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-2xl font-bold text-foreground mb-1">Produtos Recentes</h3>
+                <p className="text-muted-foreground">Últimos produtos adicionados ao catálogo</p>
+              </div>
+              <Button 
+                onClick={() => navigate("/products")}
+                className="shadow-lg hover:shadow-xl transition-all"
+              >
+                Ver Todos
+              </Button>
+            </div>
 
-          <div className="space-y-4">
-            {products.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                Nenhum produto cadastrado ainda
-              </p>
-            ) : (
-              products.slice(0, 5).map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Package className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">{product.name}</p>
-                      <p className="text-sm text-muted-foreground">{product.category}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Badge variant={product.stock < 10 ? "warning" : "success"}>
-                      {product.stock} un.
-                    </Badge>
-                    <p className="font-semibold text-foreground">
-                      R$ {product.price.toFixed(2)}
-                    </p>
-                  </div>
+            <div className="space-y-3">
+              {products.length === 0 ? (
+                <div className="text-center py-16">
+                  <Package className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
+                  <p className="text-muted-foreground text-lg">
+                    Nenhum produto cadastrado ainda
+                  </p>
                 </div>
-              ))
-            )}
+              ) : (
+                products.slice(0, 5).map((product, index) => (
+                  <div
+                    key={product.id}
+                    className="group flex items-center justify-between p-5 rounded-xl bg-gradient-to-br from-muted/30 to-transparent border border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-300"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className="relative">
+                        <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                          <Package className="h-7 w-7 text-primary" />
+                        </div>
+                        <div className="absolute inset-0 bg-primary/10 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-lg mb-1">{product.name}</p>
+                        <p className="text-sm text-muted-foreground">{product.category}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <Badge 
+                        variant={product.stock < 10 ? "warning" : "success"}
+                        className="text-sm font-semibold px-3 py-1.5"
+                      >
+                        {product.stock} un.
+                      </Badge>
+                      <p className="font-bold text-foreground text-xl">
+                        R$ {product.price.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </Card>
       </div>

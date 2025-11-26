@@ -9,14 +9,15 @@ interface BadgeProps {
 
 export const Badge = ({ children, variant = "default", className }: BadgeProps) => {
   const variantClasses = {
-    success: "bg-success text-success-foreground hover:bg-success/80",
-    warning: "bg-warning text-warning-foreground hover:bg-warning/80",
+    success: "bg-success/10 text-success border-success/30 shadow-sm hover:bg-success/20",
+    warning: "bg-warning/10 text-warning border-warning/30 shadow-sm hover:bg-warning/20",
   };
 
   return (
     <ShadcnBadge
-      variant={variant === "success" || variant === "warning" ? "default" : variant}
+      variant={variant === "success" || variant === "warning" ? "outline" : variant}
       className={cn(
+        "font-semibold px-3 py-1.5 backdrop-blur-sm transition-all duration-200 hover:scale-105 border",
         variant === "success" && variantClasses.success,
         variant === "warning" && variantClasses.warning,
         className
