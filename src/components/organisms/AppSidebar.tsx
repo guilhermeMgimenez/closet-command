@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -42,27 +43,67 @@ export function AppSidebar() {
 
   return (
     <Sidebar className={isCollapsed ? "w-[60px]" : "w-64"} collapsible="icon">
-      <SidebarContent>
-        <div className="p-4">
+      <SidebarContent className="bg-gradient-to-b from-sidebar-background to-sidebar-background/95">
+        <div className="p-4 border-b border-sidebar-border/50">
           {!isCollapsed && (
-            <h2 className="text-xl font-bold text-sidebar-foreground">Admin Store</h2>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 rounded-xl shadow-lg">
+                <Menu className="h-5 w-5 text-sidebar-primary-foreground" />
+              </div>
+              <h2 className="text-xl font-bold bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/80 bg-clip-text text-transparent">
+                Admin Store
+              </h2>
+            </div>
           )}
-          {isCollapsed && <Menu className="h-6 w-6 text-sidebar-foreground" />}
+          {isCollapsed && (
+            <div className="flex justify-center">
+              <div className="p-2 bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 rounded-xl shadow-lg">
+                <Menu className="h-5 w-5 text-sidebar-primary-foreground" />
+              </div>
+            </div>
+          )}
         </div>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+        <SidebarGroup className="mt-4">
+          <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 font-semibold px-4">
+            Menu Principal
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1 px-2">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.url}
+                    className="group"
+                  >
                     <NavLink
                       to={item.url}
-                      className="flex items-center gap-3 hover:bg-sidebar-accent rounded-md"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-sidebar-accent/50"
                     >
-                      <item.icon className="h-5 w-5" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <div className={cn(
+                        "p-2 rounded-lg transition-all duration-200",
+                        location.pathname === item.url 
+                          ? "bg-sidebar-primary shadow-lg shadow-sidebar-primary/30" 
+                          : "bg-sidebar-accent/50 group-hover:bg-sidebar-accent"
+                      )}>
+                        <item.icon className={cn(
+                          "h-4 w-4 transition-colors",
+                          location.pathname === item.url 
+                            ? "text-sidebar-primary-foreground" 
+                            : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground"
+                        )} />
+                      </div>
+                      {!isCollapsed && (
+                        <span className={cn(
+                          "font-medium transition-colors",
+                          location.pathname === item.url 
+                            ? "text-sidebar-foreground" 
+                            : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground"
+                        )}>
+                          {item.title}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -71,14 +112,19 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="mt-auto p-4">
+        <div className="mt-auto p-4 border-t border-sidebar-border/50">
           <Button
             variant="ghost"
-            className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
+            className={cn(
+              "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent rounded-xl transition-all duration-200",
+              isCollapsed && "justify-center"
+            )}
             onClick={handleLogout}
           >
-            <LogOut className="h-5 w-5" />
-            {!isCollapsed && <span className="ml-3">Sair</span>}
+            <div className="p-2 rounded-lg bg-sidebar-accent/50">
+              <LogOut className="h-4 w-4" />
+            </div>
+            {!isCollapsed && <span className="ml-3 font-medium">Sair</span>}
           </Button>
         </div>
       </SidebarContent>
