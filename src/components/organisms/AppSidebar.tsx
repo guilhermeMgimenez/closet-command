@@ -44,7 +44,7 @@ export function AppSidebar() {
   return (
     <Sidebar className={isCollapsed ? "w-[80px]" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-gradient-to-b from-sidebar-background to-sidebar-background/95">
-        <div className={cn("p-4 border-b border-sidebar-border/50", isCollapsed && "px-2")}>
+        <div className={cn("border-b border-sidebar-border/50", isCollapsed ? "py-4 flex justify-center" : "p-4")}>
           {!isCollapsed && (
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 rounded-xl shadow-lg">
@@ -56,10 +56,8 @@ export function AppSidebar() {
             </div>
           )}
           {isCollapsed && (
-            <div className="flex justify-center">
-              <div className="p-2 bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 rounded-xl shadow-lg">
-                <Menu className="h-5 w-5 text-sidebar-primary-foreground" />
-              </div>
+            <div className="p-2 bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 rounded-xl shadow-lg">
+              <Menu className="h-5 w-5 text-sidebar-primary-foreground" />
             </div>
           )}
         </div>
@@ -71,7 +69,7 @@ export function AppSidebar() {
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <SidebarMenu className={cn("space-y-1", isCollapsed ? "px-2" : "px-2")}>
+            <SidebarMenu className={cn("space-y-1", isCollapsed ? "" : "px-2")}>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
@@ -82,8 +80,8 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       className={cn(
-                        "flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-sidebar-accent/50",
-                        isCollapsed ? "justify-center px-0" : "px-3"
+                        "flex items-center rounded-xl transition-all duration-200 hover:bg-sidebar-accent/50",
+                        isCollapsed ? "justify-center py-2.5" : "gap-3 py-2.5 px-3"
                       )}
                     >
                       <div className={cn(
@@ -117,12 +115,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className={cn("mt-auto p-4 border-t border-sidebar-border/50", isCollapsed && "px-2")}>
+        <div className={cn("mt-auto border-t border-sidebar-border/50", isCollapsed ? "py-4 flex justify-center" : "p-4")}>
           <Button
             variant="ghost"
             className={cn(
-              "w-full text-sidebar-foreground hover:bg-sidebar-accent rounded-xl transition-all duration-200",
-              isCollapsed ? "justify-center px-0" : "justify-start"
+              "text-sidebar-foreground hover:bg-sidebar-accent rounded-xl transition-all duration-200",
+              isCollapsed ? "justify-center" : "w-full justify-start"
             )}
             onClick={handleLogout}
           >
