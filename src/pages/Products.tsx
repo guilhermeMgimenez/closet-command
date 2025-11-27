@@ -310,15 +310,11 @@ export default function Products() {
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
                       <option value="">Selecione uma categoria</option>
-                      <option value="Casaco">Casaco</option>
-                      <option value="Camiseta">Camiseta</option>
-                      <option value="Vestido">Vestido</option>
-                      <option value="Calça">Calça</option>
-                      <option value="Saia">Saia</option>
-                      <option value="Shorts">Shorts</option>
-                      <option value="Blusa">Blusa</option>
-                      <option value="Jaqueta">Jaqueta</option>
-                      <option value="Suéter">Suéter</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.name}>
+                          {cat.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
