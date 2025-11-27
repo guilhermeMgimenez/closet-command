@@ -75,19 +75,19 @@ export function AppSidebar() {
                   <SidebarMenuButton 
                     asChild 
                     isActive={location.pathname === item.url}
-                    className="group"
+                    className="group focus:outline-none focus-visible:ring-0"
                   >
                     <NavLink
                       to={item.url}
                       className={cn(
-                        "flex items-center rounded-xl transition-all duration-200 hover:bg-sidebar-accent/50",
+                        "flex items-center rounded-xl transition-all duration-300 hover:bg-sidebar-accent/50 focus:outline-none focus-visible:ring-0 hover:scale-[1.02]",
                         isCollapsed ? "justify-center py-2.5" : "gap-3 py-2.5 px-3"
                       )}
                     >
                       <div className={cn(
-                        "p-2 rounded-lg transition-all duration-200 flex-shrink-0",
+                        "p-2 rounded-lg transition-all duration-300 flex-shrink-0 group-hover:scale-110",
                         location.pathname === item.url 
-                          ? "bg-sidebar-primary shadow-lg shadow-sidebar-primary/30" 
+                          ? "bg-sidebar-primary shadow-lg shadow-sidebar-primary/20" 
                           : "bg-sidebar-accent/50 group-hover:bg-sidebar-accent"
                       )}>
                         <item.icon className={cn(
@@ -119,12 +119,12 @@ export function AppSidebar() {
           <Button
             variant="ghost"
             className={cn(
-              "text-sidebar-foreground hover:bg-sidebar-accent rounded-xl transition-all duration-200",
+              "text-sidebar-foreground hover:bg-sidebar-accent rounded-xl transition-all duration-300 hover:scale-[1.02] focus:outline-none focus-visible:ring-0 group",
               isCollapsed ? "justify-center" : "w-full justify-start"
             )}
             onClick={handleLogout}
           >
-            <div className="p-2 rounded-lg bg-sidebar-accent/50 flex-shrink-0">
+            <div className="p-2 rounded-lg bg-sidebar-accent/50 flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-sidebar-accent">
               <LogOut className="h-4 w-4" />
             </div>
             {!isCollapsed && <span className="ml-3 font-medium">Sair</span>}
