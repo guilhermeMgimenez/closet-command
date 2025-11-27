@@ -42,7 +42,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={isCollapsed ? "w-[70px]" : "w-64"} collapsible="icon">
+    <Sidebar className={isCollapsed ? "w-[80px]" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-gradient-to-b from-sidebar-background to-sidebar-background/95">
         <div className={cn("p-4 border-b border-sidebar-border/50", isCollapsed && "px-2")}>
           {!isCollapsed && (
