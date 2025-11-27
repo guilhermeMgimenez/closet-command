@@ -42,9 +42,9 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={isCollapsed ? "w-[60px]" : "w-64"} collapsible="icon">
+    <Sidebar className={isCollapsed ? "w-[70px]" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-gradient-to-b from-sidebar-background to-sidebar-background/95">
-        <div className="p-4 border-b border-sidebar-border/50">
+        <div className={cn("p-4 border-b border-sidebar-border/50", isCollapsed && "px-2")}>
           {!isCollapsed && (
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 rounded-xl shadow-lg">
@@ -65,11 +65,13 @@ export function AppSidebar() {
         </div>
 
         <SidebarGroup className="mt-4">
-          <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 font-semibold px-4">
-            Menu Principal
-          </SidebarGroupLabel>
+          {!isCollapsed && (
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 font-semibold px-4">
+              Menu Principal
+            </SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1 px-2">
+            <SidebarMenu className={cn("space-y-1", isCollapsed ? "px-2" : "px-2")}>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
@@ -79,10 +81,13 @@ export function AppSidebar() {
                   >
                     <NavLink
                       to={item.url}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-sidebar-accent/50"
+                      className={cn(
+                        "flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-sidebar-accent/50",
+                        isCollapsed ? "justify-center px-0" : "px-3"
+                      )}
                     >
                       <div className={cn(
-                        "p-2 rounded-lg transition-all duration-200",
+                        "p-2 rounded-lg transition-all duration-200 flex-shrink-0",
                         location.pathname === item.url 
                           ? "bg-sidebar-primary shadow-lg shadow-sidebar-primary/30" 
                           : "bg-sidebar-accent/50 group-hover:bg-sidebar-accent"
@@ -112,16 +117,16 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="mt-auto p-4 border-t border-sidebar-border/50">
+        <div className={cn("mt-auto p-4 border-t border-sidebar-border/50", isCollapsed && "px-2")}>
           <Button
             variant="ghost"
             className={cn(
-              "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent rounded-xl transition-all duration-200",
-              isCollapsed && "justify-center"
+              "w-full text-sidebar-foreground hover:bg-sidebar-accent rounded-xl transition-all duration-200",
+              isCollapsed ? "justify-center px-0" : "justify-start"
             )}
             onClick={handleLogout}
           >
-            <div className="p-2 rounded-lg bg-sidebar-accent/50">
+            <div className="p-2 rounded-lg bg-sidebar-accent/50 flex-shrink-0">
               <LogOut className="h-4 w-4" />
             </div>
             {!isCollapsed && <span className="ml-3 font-medium">Sair</span>}
