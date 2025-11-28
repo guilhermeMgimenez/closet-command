@@ -27,7 +27,7 @@ export default function Dashboard() {
 
   const totalProducts = products.length;
   const lowStockProducts = products.filter((p) => p.stock < 10).length;
-  const totalValue = products.reduce((acc, p) => acc + p.price * p.stock, 0);
+  const totalValue = products.reduce((acc, p) => acc + (p.price || 0) * p.stock, 0);
 
   return (
     <DashboardLayout>
@@ -124,7 +124,7 @@ export default function Dashboard() {
                         {product.stock} un.
                       </Badge>
                       <p className="font-bold text-foreground text-xl">
-                        R$ {product.price.toFixed(2)}
+                        R$ {product.price ? product.price.toFixed(2) : "0.00"}
                       </p>
                     </div>
                   </div>
