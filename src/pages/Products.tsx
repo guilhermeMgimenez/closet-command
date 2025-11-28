@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/templates/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Search, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Package, PackagePlus } from "lucide-react";
 import { ImageUpload } from "@/components/molecules/ImageUpload";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +43,9 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [priceSort, setPriceSort] = useState("default");
+  const [stockDialogOpen, setStockDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [stockToAdd, setStockToAdd] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -145,6 +148,26 @@ export default function Products() {
     },
   });
 
+  const updateStockMutation = useMutation({
+    mutationFn: async ({ id, newStock }: { id: string; newStock: number }) => {
+      const { error } = await supabase
+        .from("products")
+        .update({ stock: newStock })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("Estoque atualizado com sucesso!");
+      setStockDialogOpen(false);
+      setSelectedProduct(null);
+      setStockToAdd("");
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar estoque");
+    },
+  });
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -193,6 +216,21 @@ export default function Products() {
       image_url: product.image_url || "",
     });
     setOpen(true);
+  };
+
+  const handleAddStock = (product: any) => {
+    setSelectedProduct(product);
+    setStockDialogOpen(true);
+  };
+
+  const handleStockUpdate = () => {
+    const quantity = Number.parseInt(stockToAdd);
+    if (!quantity || quantity <= 0) {
+      toast.error("Digite uma quantidade válida");
+      return;
+    }
+    const newStock = selectedProduct.stock + quantity;
+    updateStockMutation.mutate({ id: selectedProduct.id, newStock });
   };
 
   return (
@@ -467,6 +505,14 @@ export default function Products() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => handleAddStock(product)}
+                          title="Adicionar ao estoque"
+                        >
+                          <PackagePlus className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleEdit(product)}
                         >
                           <Pencil className="h-4 w-4" />
@@ -486,6 +532,56 @@ export default function Products() {
             </TableBody>
           </Table>
         </div>
+
+        <Dialog open={stockDialogOpen} onOpenChange={setStockDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adicionar ao Estoque</DialogTitle>
+            </DialogHeader>
+            {selectedProduct && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  {selectedProduct.image_url ? (
+                    <img
+                      src={selectedProduct.image_url}
+                      alt={selectedProduct.name}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                      <Package className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="font-semibold">{selectedProduct.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Estoque atual: {selectedProduct.stock}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="quantity">Quantidade a adicionar</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    min="1"
+                    value={stockToAdd}
+                    onChange={(e) => setStockToAdd(e.target.value)}
+                    placeholder="Digite a quantidade"
+                  />
+                </div>
+                {stockToAdd && Number.parseInt(stockToAdd) > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Novo estoque: {selectedProduct.stock + Number.parseInt(stockToAdd)}
+                  </p>
+                )}
+                <Button onClick={handleStockUpdate} className="w-full">
+                  Atualizar Estoque
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
