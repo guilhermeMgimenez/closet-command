@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/templates/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Search, Package, PackagePlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Package, PackagePlus, PackageMinus } from "lucide-react";
 import { ImageUpload } from "@/components/molecules/ImageUpload";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,8 +44,9 @@ export default function Products() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [priceSort, setPriceSort] = useState("default");
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
+  const [stockOperation, setStockOperation] = useState<"add" | "remove">("add");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [stockToAdd, setStockToAdd] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -161,7 +162,7 @@ export default function Products() {
       toast.success("Estoque atualizado com sucesso!");
       setStockDialogOpen(false);
       setSelectedProduct(null);
-      setStockToAdd("");
+      setStockQuantity("");
     },
     onError: () => {
       toast.error("Erro ao atualizar estoque");
@@ -220,16 +221,32 @@ export default function Products() {
 
   const handleAddStock = (product: any) => {
     setSelectedProduct(product);
+    setStockOperation("add");
+    setStockDialogOpen(true);
+  };
+
+  const handleRemoveStock = (product: any) => {
+    setSelectedProduct(product);
+    setStockOperation("remove");
     setStockDialogOpen(true);
   };
 
   const handleStockUpdate = () => {
-    const quantity = Number.parseInt(stockToAdd);
+    const quantity = Number.parseInt(stockQuantity);
     if (!quantity || quantity <= 0) {
       toast.error("Digite uma quantidade válida");
       return;
     }
-    const newStock = selectedProduct.stock + quantity;
+    
+    const newStock = stockOperation === "add" 
+      ? selectedProduct.stock + quantity 
+      : selectedProduct.stock - quantity;
+    
+    if (newStock < 0) {
+      toast.error("Estoque não pode ficar negativo");
+      return;
+    }
+    
     updateStockMutation.mutate({ id: selectedProduct.id, newStock });
   };
 
@@ -513,6 +530,14 @@ export default function Products() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => handleRemoveStock(product)}
+                          title="Remover do estoque"
+                        >
+                          <PackageMinus className="h-4 w-4 text-orange-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleEdit(product)}
                         >
                           <Pencil className="h-4 w-4" />
@@ -533,10 +558,15 @@ export default function Products() {
           </Table>
         </div>
 
-        <Dialog open={stockDialogOpen} onOpenChange={setStockDialogOpen}>
+        <Dialog open={stockDialogOpen} onOpenChange={(open) => {
+          setStockDialogOpen(open);
+          if (!open) setStockQuantity("");
+        }}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Adicionar ao Estoque</DialogTitle>
+              <DialogTitle>
+                {stockOperation === "add" ? "Adicionar ao Estoque" : "Remover do Estoque"}
+              </DialogTitle>
             </DialogHeader>
             {selectedProduct && (
               <div className="space-y-4">
@@ -560,19 +590,24 @@ export default function Products() {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="quantity">Quantidade a adicionar</Label>
+                  <Label htmlFor="quantity">
+                    Quantidade a {stockOperation === "add" ? "adicionar" : "remover"}
+                  </Label>
                   <Input
                     id="quantity"
                     type="number"
                     min="1"
-                    value={stockToAdd}
-                    onChange={(e) => setStockToAdd(e.target.value)}
+                    max={stockOperation === "remove" ? selectedProduct.stock : undefined}
+                    value={stockQuantity}
+                    onChange={(e) => setStockQuantity(e.target.value)}
                     placeholder="Digite a quantidade"
                   />
                 </div>
-                {stockToAdd && Number.parseInt(stockToAdd) > 0 && (
+                {stockQuantity && Number.parseInt(stockQuantity) > 0 && (
                   <p className="text-sm text-muted-foreground">
-                    Novo estoque: {selectedProduct.stock + Number.parseInt(stockToAdd)}
+                    Novo estoque: {stockOperation === "add" 
+                      ? selectedProduct.stock + Number.parseInt(stockQuantity)
+                      : selectedProduct.stock - Number.parseInt(stockQuantity)}
                   </p>
                 )}
                 <Button onClick={handleStockUpdate} className="w-full">
