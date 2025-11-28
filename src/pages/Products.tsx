@@ -452,7 +452,7 @@ export default function Products() {
                       {product.name}
                     </TableCell>
                     <TableCell>{product.category || "-"}</TableCell>
-                    <TableCell>R$ {product.price.toFixed(2)}</TableCell>
+                    <TableCell>R$ {product.price ? product.price.toFixed(2) : "0.00"}</TableCell>
                     <TableCell>
                       <Badge
                         variant={product.stock < 10 ? "warning" : "success"}
