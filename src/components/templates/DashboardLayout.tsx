@@ -17,7 +17,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="flex items-center gap-3">
               <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary-glow rounded-full" />
               <h1 className="text-lg font-semibold text-foreground">
-                Sistema de Administração
+                Solaris Roupas - Administração
               </h1>
             </div>
           </header>

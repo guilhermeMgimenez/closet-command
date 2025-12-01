@@ -130,7 +130,7 @@ export default function Auth() {
             </div>
           </div>
           <div className={styles.titleBox}>
-            <h1 className={styles.title}>Admin Store</h1>
+            <h1 className={styles.title}>Solaris Roupas - Admin</h1>
             <p className={styles.subtitle}>
               {isLogin ? "Entre com sua conta" : "Crie sua conta"}
             </p>
