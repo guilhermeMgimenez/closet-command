@@ -51,7 +51,7 @@ export function AppSidebar() {
                 <Menu className="h-5 w-5 text-sidebar-primary-foreground" />
               </div>
               <h2 className="text-xl font-bold bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/80 bg-clip-text text-transparent">
-                Solaris Roupas - Admin
+                Roupas - Admin
               </h2>
             </div>
           )}
